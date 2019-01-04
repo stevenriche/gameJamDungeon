@@ -3,6 +3,7 @@ module GameLogic.GameLoop
 ) where
 
 import System.IO
+import GameLogic.MonsterMovement
 import GameLogic.PlayerMovement
 import Levels.LevelsList
 
@@ -11,6 +12,7 @@ gameloop' :: ([Char], [[Char]]) -> Int -> IO [()]
 gameloop' (status, (message:dungeonMap)) levelIndex
   | status == "END" = renderScreen' message dungeonMap
   | status == "WIN" = nextLevel' message dungeonMap levelIndex
+  | status == "MON" = monsterTurn' message dungeonMap levelIndex
   | otherwise       = continueGame' message dungeonMap levelIndex
 
 -- Move to the next level or beat the game
@@ -20,13 +22,19 @@ nextLevel' message dungeonMap levelIndex
   | otherwise                         = do
     renderScreen' message dungeonMap
     _ <- getLine
-    gameloop' ("CONTINUE", ("Next Level!" : (levels !! (levelIndex + 1)))) (levelIndex + 1)
+    gameloop' ("CON", ("Next Level!" : (levels !! (levelIndex + 1)))) (levelIndex + 1)
 
 -- Continue in gameplay loop, and query the player for next move
 continueGame' :: [Char] -> [[Char]] -> Int -> IO [()]
 continueGame' message dungeonMap levelIndex = do
   renderScreen' message dungeonMap
   queryDirection' dungeonMap levelIndex
+
+-- Kick off gameplay loop to move monsters
+monsterTurn' :: [Char] -> [[Char]] -> Int -> IO [()]
+monsterTurn' message dungeonMap levelIndex = do
+  renderScreen' message dungeonMap
+  gameloop' (monsterMoves' dungeonMap) levelIndex
 
 -- Prepare screen, print message and map
 renderScreen' :: [Char] -> [[Char]] -> IO [()]
@@ -51,4 +59,4 @@ takeInput' :: [Char] -> [[Char]] -> ([Char], [[Char]])
 takeInput' direction dungeonMap
   | direction `elem` ["w", "a", "s", "d"]   = move' direction dungeonMap
   | direction == "q"                        = ("END", ("Thanks for playing" : dungeonMap))
-  | otherwise                               = ("CONTINUE", ("That is not a valid direction!" : dungeonMap))
+  | otherwise                               = ("CON", ("That is not a valid direction!" : dungeonMap))

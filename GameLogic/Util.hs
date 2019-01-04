@@ -1,8 +1,11 @@
 module GameLogic.Util
-( redrawMap'
-, findRow'
-, findCol'
+( findRows'
+, findCols'
+, characterNotPresent'
 , nextSpace'
+, isSpaceOpen'
+, moveItem'
+, selfDestruction'
 ) where
 
 import Data.List
@@ -18,14 +21,17 @@ redrawMap' dM nS nC =
 replaceAtIndex' :: Int -> a -> [a] -> [a]
 replaceAtIndex' n item ls = a ++ (item:b) where (a, (_:b)) = splitAt n ls
 
--- Returns the index of the row where the given character is located
-findRow' :: [[Char]] -> Char -> Int
-findRow' dungeonMap character = fromJust $ findIndex (elem character) dungeonMap
+-- Returns the indices of the rows where the given character is located
+findRows' :: [[Char]] -> Char -> [Int]
+findRows' dungeonMap character = findIndices (elem character) dungeonMap
 
--- Returns the index of the column where the given character is located
-findCol' :: [[Char]] -> Char -> Int
-findCol' dungeonMap character =
-  fromJust $ elemIndex character (dungeonMap!!(findRow' dungeonMap character))
+-- Returns the indices of the columns where the given character is located
+findCols' :: [Char] -> Char -> [Int]
+findCols' dungeonMapRow character = elemIndices character dungeonMapRow
+
+-- Returns true if character was not found at all
+characterNotPresent' :: [[Char]] -> Char -> Bool
+characterNotPresent' dungeonMap character = isNothing $ findIndex (elem character) dungeonMap
 
 -- Returns the character on the map relative to the user space and the distance
 -- dungeonMap: List of Strings representing ASCII dungeon map
@@ -60,3 +66,21 @@ getCharAtSpace' dungeonMap currentSpace newSpaceOffset =
   let newRow = fst currentSpace + fst newSpaceOffset
       newCol = snd currentSpace + snd newSpaceOffset
   in (dungeonMap !! newRow) !! newCol
+
+-- Returns true if the player (or monster) is moving onto an available space
+isSpaceOpen' :: [[Char]] -> (Int, Int) -> (Int, Int) -> Bool
+isSpaceOpen' dungeonMap currentSpace newSpaceOffset =
+  let newChar = getCharAtSpace' dungeonMap currentSpace newSpaceOffset
+  in (newChar /= 'O' && newChar /= '#' && newChar /= 'M' )
+
+-- Function that calls the user movement and makes a new map
+moveItem' :: [[Char]] -> (Int, Int) -> (Int, Int) -> [[Char]]
+moveItem' dungeonMap item nextSpot =
+  let newItemRow = fst item + fst nextSpot
+      newItemCol = snd item + snd nextSpot
+      itemChar = getCharAtSpace' dungeonMap item (0, 0)
+  in redrawMap' (redrawMap' dungeonMap item '.') (newItemRow, newItemCol) itemChar
+
+-- Function that removes the player if they kill themselves
+selfDestruction' :: [[Char]] -> (Int, Int) -> [[Char]]
+selfDestruction' dungeonMap item = redrawMap' dungeonMap item '.'
