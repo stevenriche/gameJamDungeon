@@ -57,6 +57,7 @@ queryDirection' dungeonMap levelIndex = do
 -- user input - if valid direction, returns the updated dungeon map
 takeInput' :: [Char] -> [[Char]] -> ([Char], [[Char]])
 takeInput' direction dungeonMap
-  | direction `elem` ["w", "a", "s", "d"]   = move' direction dungeonMap
-  | direction == "q"                        = ("END", ("Thanks for playing" : dungeonMap))
-  | otherwise                               = ("CON", ("That is not a valid direction!" : dungeonMap))
+  | direction `elem` ["w", "a", "s", "d"]     = move' direction dungeonMap False
+  | direction `elem` ["*w", "*a", "*s", "*d"] = move' (tail direction) dungeonMap True
+  | direction == "q"                          = ("END", ("Thanks for playing" : dungeonMap))
+  | otherwise                                 = ("CON", ("That is not a valid direction!" : dungeonMap))

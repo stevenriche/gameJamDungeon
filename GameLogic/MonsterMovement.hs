@@ -48,7 +48,7 @@ advanceOneMonster' dungeonMap monster
 advanceOneMMonster' :: [[Char]] -> (Int, Int) -> [[Char]]
 advanceOneMMonster' dungeonMap coords
   | (abs (fst dCoords) <= 1 && abs (snd dCoords) <= 1) = moveItem' dungeonMap coords dCoords
-  | (length openSpaces > 0)                            = moveItem' dungeonMap coords (openSpaces!!0)
+  | (length openSpaces > 0)                            = moveIfNotMined' dungeonMap coords (openSpaces!!0)
   | otherwise                                          = dungeonMap
   where playerCoords = playerLocation' dungeonMap
         dCoords = ((fst playerCoords - fst coords), (snd playerCoords - snd coords))
@@ -85,3 +85,15 @@ mMonsterBlockCheck' dungeonMap coords (r, c)
   | abs r < 2 && abs c < 2 = isSpaceOpen' dungeonMap coords (r, c)
   | abs r < 2              = (isSpaceOpen' dungeonMap coords (r, (quot c 2))) && (isSpaceOpen' dungeonMap coords (r, c))
   | otherwise              = (isSpaceOpen' dungeonMap coords ((quot r 2), c)) && (isSpaceOpen' dungeonMap coords (r, c))
+
+-- Checks first if the monster has passed over a mine, and destroys the monster. If not, moves
+moveIfNotMined' :: [[Char]] -> (Int, Int) -> (Int, Int) -> [[Char]]
+moveIfNotMined' dungeonMap coords (r, c)
+  | (getCharAtSpace' dungeonMap coords (r, c) == '*')                       =
+    selfDestruction' dungeonMap coords
+  | abs r > 1 && (getCharAtSpace' dungeonMap coords ((quot r 2), c) == '*') =
+    selfDestruction' dungeonMap coords
+  | abs c > 1 && (getCharAtSpace' dungeonMap coords (r, (quot c 2)) == '*') =
+    selfDestruction' dungeonMap coords
+  | otherwise                                                               =
+    moveItem' dungeonMap coords (r, c)

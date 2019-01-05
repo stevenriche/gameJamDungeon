@@ -3,8 +3,10 @@ module GameLogic.Util
 , findCols'
 , characterNotPresent'
 , nextSpace'
+, getCharAtSpace'
 , isSpaceOpen'
 , moveItem'
+, moveItemWChar'
 , selfDestruction'
 ) where
 
@@ -73,13 +75,18 @@ isSpaceOpen' dungeonMap currentSpace newSpaceOffset =
   let newChar = getCharAtSpace' dungeonMap currentSpace newSpaceOffset
   in (newChar /= 'O' && newChar /= '#' && newChar /= 'M' )
 
--- Function that calls the user movement and makes a new map
-moveItem' :: [[Char]] -> (Int, Int) -> (Int, Int) -> [[Char]]
-moveItem' dungeonMap item nextSpot =
+-- Function that calls the user movement and makes a new map, replacing old character with
+-- the one given
+moveItemWChar' :: [[Char]] -> (Int, Int) -> (Int, Int) -> Char -> [[Char]]
+moveItemWChar' dungeonMap item nextSpot replacingChar =
   let newItemRow = fst item + fst nextSpot
       newItemCol = snd item + snd nextSpot
       itemChar = getCharAtSpace' dungeonMap item (0, 0)
-  in redrawMap' (redrawMap' dungeonMap item '.') (newItemRow, newItemCol) itemChar
+  in redrawMap' (redrawMap' dungeonMap item replacingChar) (newItemRow, newItemCol) itemChar
+
+-- Function that calls the user movement and makes a new map
+moveItem' :: [[Char]] -> (Int, Int) -> (Int, Int) -> [[Char]]
+moveItem' dungeonMap item nextSpot = moveItemWChar' dungeonMap item nextSpot '.'
 
 -- Function that removes the player if they kill themselves
 selfDestruction' :: [[Char]] -> (Int, Int) -> [[Char]]
