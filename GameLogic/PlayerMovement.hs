@@ -21,9 +21,7 @@ move' direction dungeonMap leaveMine
 
 -- Returns a tuple of (Row index, Col index) of the player's current position
 playerLocation' :: [[Char]] -> (Int, Int)
-playerLocation' dungeonMap =
-  let rowIndex = (findRows' dungeonMap '@') !! 0
-  in (rowIndex, ((findCols' (dungeonMap !! rowIndex) '@') !! 0))
+playerLocation' dungeonMap = characterLocation' dungeonMap '@'
 
 -- returns a tuple of row and column offset given a direction to walk
 playerWalkDistance' :: [Char] -> (Int, Int)

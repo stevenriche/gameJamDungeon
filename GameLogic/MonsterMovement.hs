@@ -4,11 +4,14 @@ module GameLogic.MonsterMovement
 
 import GameLogic.PlayerMovement
 import GameLogic.Util
+import GameLogic.Monsters.MMonster
+import GameLogic.Monsters.BMonster
 
 -- Part of the monster loop - moves the monsters and checks if the player died
 monsterMoves' :: [[Char]] -> ([Char], [[Char]])
 monsterMoves' dungeonMap
-  | (isPlayerDead' newDungeonMap)    = ("END", ("You have died. Sorry": newDungeonMap))
+  | (isPlayerDead' newDungeonMap)    = ("END", ("You have died. Sorry" : newDungeonMap))
+  | (characterNotPresent' newDungeonMap 'x') = ("END", ("The exit is blocked. Game Over." : newDungeonMap))
   | otherwise                        = ("CON", ("" : newDungeonMap))
   where newDungeonMap = advanceMonsters' dungeonMap
 
@@ -18,9 +21,9 @@ advanceMonsters' dungeonMap =
   let monsterList = findAllMonsters' dungeonMap
   in foldl (\dMap m -> advanceOneMonster' dMap m) dungeonMap monsterList
 
--- Finds all instances of all types of monsters (right now there is only 'M')
+-- Finds all instances of all types of monsters (right now there is only 'M' and 'B')
 findAllMonsters' :: [[Char]] -> [(Char, Int, Int)]
-findAllMonsters' dungeonMap = foldl (++) [] (map (\mType -> findMonsters' dungeonMap mType) ['M'])
+findAllMonsters' dungeonMap = foldl (++) [] (map (\mType -> findMonsters' dungeonMap mType) ['M', 'B'])
 
 -- Finds all instances of one type of monster
 findMonsters' :: [[Char]] -> Char -> [(Char, Int, Int)]
@@ -38,62 +41,6 @@ advanceOneMonster' :: [[Char]] -> (Char, Int, Int) -> [[Char]]
 advanceOneMonster' dungeonMap monster
   | (isPlayerDead' dungeonMap) = dungeonMap
   | monType == 'M'             = advanceOneMMonster' dungeonMap (row, col)
+  | monType == 'B'             = advanceOneBMonster' dungeonMap (row, col)
   | otherwise                  = dungeonMap
   where (monType, row, col) = monster
-
--- Specifically moves the 'M' type monster
--- The M monster tries to run directly at the player's position
--- A priority check is done to find what spaces it wants to go to most, then it finds the first
--- unblocked space and goes there.
-advanceOneMMonster' :: [[Char]] -> (Int, Int) -> [[Char]]
-advanceOneMMonster' dungeonMap coords
-  | (abs (fst dCoords) <= 1 && abs (snd dCoords) <= 1) = moveItem' dungeonMap coords dCoords
-  | (length openSpaces > 0)                            = moveIfNotMined' dungeonMap coords (openSpaces!!0)
-  | otherwise                                          = dungeonMap
-  where playerCoords = playerLocation' dungeonMap
-        dCoords = ((fst playerCoords - fst coords), (snd playerCoords - snd coords))
-        spacesPriorityOrder = mMonsterPriorityCheck' dCoords
-        openSpaces = filter (\sp -> mMonsterBlockCheck' dungeonMap coords sp) spacesPriorityOrder
-
--- A method that determines what space is highest priority, depending on where the player is in
--- relation to the monster. If the player is SSE of the monster, the following is the priority list
--- of spaces the monster will attempt to go (the monster can move 2 spaces at once)
---                __
---             __|12|__
---          __|11| 9| 7|__
---         |10| 8| M| 5| 3|
---            | 6| 4| 2|
---               | 1|
--- If the player is some other direction from the monster, the following method will flip and
--- reorient the priority order as needed
-mMonsterPriorityCheck' :: (Int, Int) -> [(Int, Int)]
-mMonsterPriorityCheck' (r, c)
-  | r > 0 && c > 0 && abs r > abs c = base -- SSE
-  | r > 0 && c > 0                  = map (\(x, y) -> (y, x)) base -- SEE
-  | r > 0 && abs r > abs c          = map (\(x, y) -> (x, (-1 * y))) base -- SSW
-  | r > 0                           = map (\(x, y) -> (y, (-1 * x))) base -- SWW
-  | c > 0 && abs r > abs c          = map (\(x, y) -> ((-1 * x) , y)) base -- NNE
-  | c > 0                           = map (\(x, y) -> ((-1 * y), x)) base -- NEE
-  | abs r > abs c                   = map (\(x, y) -> ((-1 * x), (-1 * y))) base -- NNW
-  | otherwise                       = map (\(x, y) -> ((-1 * y), (-1 * x))) base -- NWW
-  where base = [(2, 0), (1, 1), (0, 2), (1, 0), (0, 1), (1, -1), (-1, 1), (0, -1), (-1, 0), (0, -2), (-1, -1), (-2, 0)]
-
--- This method checks if the path is blocked for an 'M' monster. Since this monster can move two
--- spaces at once, we have to do a check for both the space it lands and the space in between
-mMonsterBlockCheck' :: [[Char]] -> (Int, Int) -> (Int, Int) -> Bool
-mMonsterBlockCheck' dungeonMap coords (r, c)
-  | abs r < 2 && abs c < 2 = isSpaceOpen' dungeonMap coords (r, c)
-  | abs r < 2              = (isSpaceOpen' dungeonMap coords (r, (quot c 2))) && (isSpaceOpen' dungeonMap coords (r, c))
-  | otherwise              = (isSpaceOpen' dungeonMap coords ((quot r 2), c)) && (isSpaceOpen' dungeonMap coords (r, c))
-
--- Checks first if the monster has passed over a mine, and destroys the monster. If not, moves
-moveIfNotMined' :: [[Char]] -> (Int, Int) -> (Int, Int) -> [[Char]]
-moveIfNotMined' dungeonMap coords (r, c)
-  | (getCharAtSpace' dungeonMap coords (r, c) == '*')                       =
-    selfDestruction' dungeonMap coords
-  | abs r > 1 && (getCharAtSpace' dungeonMap coords ((quot r 2), c) == '*') =
-    selfDestruction' dungeonMap coords
-  | abs c > 1 && (getCharAtSpace' dungeonMap coords (r, (quot c 2)) == '*') =
-    selfDestruction' dungeonMap coords
-  | otherwise                                                               =
-    moveItem' dungeonMap coords (r, c)

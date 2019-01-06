@@ -4,6 +4,7 @@ module GameLogic.Util
 , characterNotPresent'
 , nextSpace'
 , getCharAtSpace'
+, characterLocation'
 , isSpaceOpen'
 , moveItem'
 , moveItemWChar'
@@ -68,6 +69,12 @@ getCharAtSpace' dungeonMap currentSpace newSpaceOffset =
   let newRow = fst currentSpace + fst newSpaceOffset
       newCol = snd currentSpace + snd newSpaceOffset
   in (dungeonMap !! newRow) !! newCol
+
+-- Returns a tuple of (Row index, Col index) of the given character's current position
+characterLocation' :: [[Char]] -> Char -> (Int, Int)
+characterLocation' dungeonMap character =
+  let rowIndex = (findRows' dungeonMap character) !! 0
+  in (rowIndex, ((findCols' (dungeonMap !! rowIndex) character) !! 0))
 
 -- Returns true if the player (or monster) is moving onto an available space
 isSpaceOpen' :: [[Char]] -> (Int, Int) -> (Int, Int) -> Bool
