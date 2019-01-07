@@ -9,8 +9,8 @@ import GameLogic.Util
 -- move function - takes a direction, then spits out a new map
 move' :: [Char] -> [[Char]] -> Bool -> ([Char], [[Char]])
 move' direction dungeonMap leaveMine
-  | newSpace == 'O' || newSpace == '#'        = ("MON", ("Blocked!" : dungeonMap))
-  | newSpace == 'M' || newSpace == '*'        = ("END", ("You have died. Sorry") : selfDestruction' dungeonMap player)
+  | newSpace `elem` ['O', '#']                = ("MON", ("Blocked!" : dungeonMap))
+  | newSpace `elem` ['*', 'M', 'B', 'G', 'S'] = ("END", ("You have died. Sorry") : selfDestruction' dungeonMap player)
   | newSpace == 'x'                           = ("WIN", ("You found the exit! Press ENTER to move to the next level" : moveItem' dungeonMap player nextSpot))
   | leaveMine && (playerHasMines' dungeonMap) = ("MON", ("": moveItemWChar' (reduceMines' dungeonMap) player nextSpot '*'))
   | leaveMine                                 = ("MON", ("You are out of mines" : moveItem' dungeonMap player nextSpot))
