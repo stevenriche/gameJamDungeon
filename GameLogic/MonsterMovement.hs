@@ -41,10 +41,11 @@ createMonsterTuples' monType rowIndex dungeonMap =
 -- Moves one monster forward
 advanceOneMonster' :: [[Char]] -> (Char, Int, Int) -> [[Char]]
 advanceOneMonster' dungeonMap monster
-  | (isPlayerDead' dungeonMap) = dungeonMap
-  | monType == 'M'             = advanceOneMMonster' dungeonMap (row, col)
-  | monType == 'B'             = advanceOneBMonster' dungeonMap (row, col)
-  | monType == 'G'             = advanceOneGMonster' dungeonMap (row, col)
-  | monType == 'S'             = advanceOneSMonster' dungeonMap (row, col)
-  | otherwise                  = dungeonMap
+  | (isPlayerDead' dungeonMap)            = dungeonMap
+  | (characterNotPresent' dungeonMap 'x') = dungeonMap
+  | monType == 'M'                        = advanceOneMMonster' dungeonMap (row, col)
+  | monType == 'B'                        = advanceOneBMonster' dungeonMap (row, col)
+  | monType == 'G'                        = advanceOneGMonster' dungeonMap (row, col)
+  | monType == 'S'                        = advanceOneSMonster' dungeonMap (row, col)
+  | otherwise                             = dungeonMap
   where (monType, row, col) = monster
