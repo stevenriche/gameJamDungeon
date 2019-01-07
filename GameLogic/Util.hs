@@ -80,7 +80,7 @@ characterLocation' dungeonMap character =
 isSpaceOpen' :: [[Char]] -> (Int, Int) -> (Int, Int) -> Bool
 isSpaceOpen' dungeonMap currentSpace newSpaceOffset =
   let newChar = getCharAtSpace' dungeonMap currentSpace newSpaceOffset
-  in (newChar /= 'O' && newChar /= '#' && newChar /= 'M' )
+  in (newChar `notElem` ['O', '#', 'M', 'B', 'G', 'S', 'x'])
 
 -- Function that calls the user movement and makes a new map, replacing old character with
 -- the one given
