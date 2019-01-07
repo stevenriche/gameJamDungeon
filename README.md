@@ -1,9 +1,9 @@
-#DUNGEON CRAWL
+# DUNGEON CRAWL
 
 This is a game I made for the 2018 Q4 IP sprint Game Jam. It is my first experience writing anything
 using Haskell (so it probably isn't written very well).
 
-##How to Run
+## How to Run##
 
 1. First, [Install Haskell](https://www.haskell.org/platform/).
 
@@ -19,13 +19,13 @@ $ ghc --make dungeon
 $ ./dungeon
 ```
 
-##How to Play
+## How to Play
 
 This game is a simple dungeon crawler, similar to old Rogue-like games (but with fewer features).
 You see the level depicted as an ASCII map, and you must move your character to the exit of each
 level.
 
-###Character Key
+### Character Key
 
 `.` is an open area in the dungeon room.
 
@@ -49,7 +49,7 @@ trying to anticipate your moves.
 `G` is a ghost monster. It will move 1 space every turn directly towards the player. It can pass
 directly through walls, leaving gaps behind it that the player or other monsters can pass through.
 
-###Movement
+### Movement
 
 Each turn, the player will enter `w`, `a`, `s`, or `d` to move one space up, left, down, or right
 respectively. If you have landmines available (shown at the bottom of the level), you can instead
@@ -57,7 +57,7 @@ enter `*w`, `*a`, `*s`, or `*d` to leave a landmine behind you when you move.
 
 You can also enter `q` to quit the game.
 
-##Development
+## Development
 
 This was my first Haskell project, so I still haven't had much of a chance to really get a feel for
 the language and use its strengths to my advantage - I imagine a lot of the code I have now is an
