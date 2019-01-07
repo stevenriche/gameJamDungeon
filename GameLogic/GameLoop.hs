@@ -22,7 +22,7 @@ nextLevel' message dungeonMap levelIndex
   | otherwise                         = do
     renderScreen' message dungeonMap
     _ <- getLine
-    gameloop' ("CON", ("Next Level!" : (levels !! (levelIndex + 1)))) (levelIndex + 1)
+    gameloop' ("CON", ("" : (levels !! (levelIndex + 1)))) (levelIndex + 1)
 
 -- Continue in gameplay loop, and query the player for next move
 continueGame' :: [Char] -> [[Char]] -> Int -> IO [()]

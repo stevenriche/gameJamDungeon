@@ -6,6 +6,8 @@ import GameLogic.PlayerMovement
 import GameLogic.Util
 import GameLogic.Monsters.MMonster
 import GameLogic.Monsters.BMonster
+import GameLogic.Monsters.GMonster
+import GameLogic.Monsters.SMonster
 
 -- Part of the monster loop - moves the monsters and checks if the player died
 monsterMoves' :: [[Char]] -> ([Char], [[Char]])
@@ -23,7 +25,7 @@ advanceMonsters' dungeonMap =
 
 -- Finds all instances of all types of monsters (right now there is only 'M' and 'B')
 findAllMonsters' :: [[Char]] -> [(Char, Int, Int)]
-findAllMonsters' dungeonMap = foldl (++) [] (map (\mType -> findMonsters' dungeonMap mType) ['M', 'B'])
+findAllMonsters' dungeonMap = foldl (++) [] (map (\mType -> findMonsters' dungeonMap mType) ['M', 'B', 'G', 'S'])
 
 -- Finds all instances of one type of monster
 findMonsters' :: [[Char]] -> Char -> [(Char, Int, Int)]
@@ -42,5 +44,7 @@ advanceOneMonster' dungeonMap monster
   | (isPlayerDead' dungeonMap) = dungeonMap
   | monType == 'M'             = advanceOneMMonster' dungeonMap (row, col)
   | monType == 'B'             = advanceOneBMonster' dungeonMap (row, col)
+  | monType == 'G'             = advanceOneGMonster' dungeonMap (row, col)
+  | monType == 'S'             = advanceOneSMonster' dungeonMap (row, col)
   | otherwise                  = dungeonMap
   where (monType, row, col) = monster

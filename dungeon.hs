@@ -2,4 +2,4 @@ import GameLogic.GameLoop
 import Levels.LevelsList
 
 -- Main input/output function
-main = gameloop' ("CONTINUE", ("Welcome to the dungeon!" : (levels !! 0))) 0
+main = gameloop' ("WIN", ("" : (levels !! 0))) 0
