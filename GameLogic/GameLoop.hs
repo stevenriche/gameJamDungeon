@@ -39,8 +39,8 @@ monsterTurn' message dungeonMap levelIndex = do
 -- Prepare screen, print message and map
 renderScreen' :: [Char] -> [[Char]] -> IO [()]
 renderScreen' message dungeonMap = do
-  hPutStr stderr $ "\r\ESC[1J" -- clears screen
-  hPutStr stderr $ "\r\ESC[22A" -- puts cursor 22 lines above
+  hPutStr stderr "\r\ESC[1J" -- clears screen
+  hPutStr stderr "\r\ESC[22A" -- puts cursor 22 lines above
   putStrLn message
   printDungeon' dungeonMap
 

@@ -34,7 +34,7 @@ findCols' dungeonMapRow character = elemIndices character dungeonMapRow
 
 -- Returns true if character was not found at all
 characterNotPresent' :: [[Char]] -> Char -> Bool
-characterNotPresent' dungeonMap character = isNothing $ findIndex (elem character) dungeonMap
+characterNotPresent' dungeonMap character = isNothing (findIndex (elem character) dungeonMap)
 
 -- Returns the character on the map relative to the user space and the distance
 -- dungeonMap: List of Strings representing ASCII dungeon map
